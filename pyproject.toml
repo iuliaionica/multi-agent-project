@@ -1,0 +1,47 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "vault-aws-mcp"
+version = "0.1.0"
+description = "MCP Server for AWS operations with HashiCorp Vault integration for secure credential management"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "mcp>=1.0.0",
+    "hvac>=2.1.0",
+    "boto3>=1.34.0",
+    "pydantic>=2.5.0",
+    "pydantic-settings>=2.1.0",
+    "anthropic>=0.40.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.21.0",
+    "black>=23.0.0",
+    "ruff>=0.1.0",
+    "mypy>=1.7.0",
+    "boto3-stubs[essential]>=1.34.0",
+]
+
+[project.scripts]
+vault-aws-mcp = "vault_aws_mcp.server:main"
+vault-aws-agents = "vault_aws_mcp.agents.agent_system:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/vault_aws_mcp"]
+
+[tool.black]
+line-length = 100
+target-version = ["py310"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.mypy]
+python_version = "3.10"
+strict = true
