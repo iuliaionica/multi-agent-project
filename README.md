@@ -22,6 +22,25 @@ python cli.py
 
 Comenzi: `/switch <agent>`, `/status`, `/help`, `/quit`
 
+### Arhitectură Agenți
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                         Orchestrator                             │
+│              (coordonează toți agenții specializați)             │
+└─────────────────────────────────────────────────────────────────┘
+         │              │              │              │
+         ▼              ▼              ▼              ▼
+    ┌─────────┐   ┌─────────┐   ┌─────────┐   ┌─────────┐
+    │   AWS   │   │  Vault  │   │   MCP   │   │ GitHub  │
+    │  Agent  │   │  Agent  │   │  Agent  │   │  Agent  │
+    └─────────┘   └─────────┘   └─────────┘   └─────────┘
+         │              │              │              │
+         ▼              ▼              ▼              ▼
+    S3, EC2,      Secrets,       MCP Tools     Git ops,
+    Lambda...     Credentials    Discovery     Push/Pull
+```
+
 ## Arhitectură MCP
 
 ```
