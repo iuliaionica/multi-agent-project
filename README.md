@@ -98,12 +98,16 @@ pip install -e .
 
 ## Configurare Vault
 
-### 1. Pornește Vault (dev mode pentru testing)
+### 1. Pornește Vault
 
 ```bash
-vault server -dev
+# Terminal 1 - Pornește Vault Server
+vault server -config=$HOME/vault/config.hcl
+
+# Terminal 2 - Setup environment
 export VAULT_ADDR='http://127.0.0.1:8200'
-export VAULT_TOKEN='hvs.xxx'  # root token din output
+vault operator unseal <unseal-key>
+export VAULT_TOKEN='hvs.<token>'
 ```
 
 ### 2. Configurează AWS Secrets Engine

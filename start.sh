@@ -29,10 +29,12 @@ else
     echo "      ✗ Vault NU rulează!"
     echo ""
     echo "      Deschide un alt terminal și rulează:"
-    echo "      vault server -dev"
+    echo "      vault server -config=\$HOME/vault/config.hcl"
     echo ""
-    echo "      Apoi copiază Root Token și setează-l:"
-    echo "      export VAULT_TOKEN='hvs.xxxxx'"
+    echo "      Apoi într-un alt terminal:"
+    echo "      export VAULT_ADDR='http://127.0.0.1:8200'"
+    echo "      vault operator unseal <unseal-key>"
+    echo "      export VAULT_TOKEN='hvs.<token>'"
     exit 1
 fi
 
@@ -43,7 +45,7 @@ if [ -z "$VAULT_TOKEN" ]; then
     echo "      ✗ VAULT_TOKEN nu este setat!"
     echo ""
     echo "      Setează-l cu:"
-    echo "      export VAULT_TOKEN='hvs.xxxxx'"
+    echo "      export VAULT_TOKEN='hvs.<token>'"
     exit 1
 else
     echo "      ✓ VAULT_TOKEN setat"
