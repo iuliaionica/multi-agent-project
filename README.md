@@ -2,7 +2,27 @@
 
 MCP Server pentru operațiuni AWS cu management securizat de credențiale prin HashiCorp Vault.
 
-## Arhitectură
+## Sistem Multi-Agent
+
+Proiectul include un sistem de agenți orchestrați:
+
+| Agent | Responsabilități |
+|-------|------------------|
+| **Orchestrator** | Coordonează agenții, execută workflow-uri paralele |
+| **AWS Agent** | Operații S3, EC2, Lambda, DynamoDB etc. |
+| **Vault Agent** | Management secrete și credențiale |
+| **MCP Agent** | Gestionare MCP server și tool discovery |
+| **GitHub Agent** | Operații Git (status, commit, push, pull, branch) |
+
+### CLI Interactiv
+
+```bash
+python cli.py
+```
+
+Comenzi: `/switch <agent>`, `/status`, `/help`, `/quit`
+
+## Arhitectură MCP
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
