@@ -9,6 +9,7 @@ from .orchestrator import OrchestratorAgent
 from .aws_agent import AWSAgent
 from .vault_agent import VaultAgent
 from .mcp_agent import MCPAgent
+from .github_agent import GitHubAgent
 from .base_agent import AgentResult
 
 logger = logging.getLogger(__name__)
@@ -67,11 +68,13 @@ class AgentSystem:
         aws_agent: AWSAgent,
         vault_agent: VaultAgent,
         mcp_agent: MCPAgent,
+        github_agent: GitHubAgent,
     ) -> None:
         self.orchestrator = orchestrator
         self.aws_agent = aws_agent
         self.vault_agent = vault_agent
         self.mcp_agent = mcp_agent
+        self.github_agent = github_agent
 
     @classmethod
     def create(
@@ -112,11 +115,18 @@ class AgentSystem:
             api_key=config.anthropic_api_key,
         )
 
+        github_agent = GitHubAgent(
+            model=config.model,
+            max_tokens=config.max_tokens,
+            api_key=config.anthropic_api_key,
+        )
+
         # Create orchestrator with references to all agents
         orchestrator = OrchestratorAgent(
             aws_agent=aws_agent,
             vault_agent=vault_agent,
             mcp_agent=mcp_agent,
+            github_agent=github_agent,
             model=config.model,
             max_tokens=config.max_tokens,
             api_key=config.anthropic_api_key,
@@ -128,6 +138,7 @@ class AgentSystem:
             aws_agent=aws_agent,
             vault_agent=vault_agent,
             mcp_agent=mcp_agent,
+            github_agent=github_agent,
         )
 
     @classmethod
@@ -202,6 +213,7 @@ class AgentSystem:
             "aws": self.aws_agent,
             "vault": self.vault_agent,
             "mcp": self.mcp_agent,
+            "github": self.github_agent,
             "orchestrator": self.orchestrator,
         }
 
@@ -220,6 +232,7 @@ class AgentSystem:
         self.aws_agent.reset()
         self.vault_agent.reset()
         self.mcp_agent.reset()
+        self.github_agent.reset()
         logger.info("All agents reset")
 
 

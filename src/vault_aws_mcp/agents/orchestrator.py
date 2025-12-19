@@ -26,11 +26,13 @@ class OrchestratorAgent(BaseAgent):
         aws_agent: "BaseAgent | None" = None,
         vault_agent: "BaseAgent | None" = None,
         mcp_agent: "BaseAgent | None" = None,
+        github_agent: "BaseAgent | None" = None,
         **kwargs: Any,
     ) -> None:
         self._aws_agent = aws_agent
         self._vault_agent = vault_agent
         self._mcp_agent = mcp_agent
+        self._github_agent = github_agent
         super().__init__(name="Orchestrator", **kwargs)
 
     @property
@@ -41,6 +43,7 @@ Your specialized agents are:
 1. **AWS Agent** - Handles all AWS operations (S3, EC2, Lambda, DynamoDB, etc.)
 2. **Vault Agent** - Manages HashiCorp Vault operations (secrets, credentials, leases)
 3. **MCP Agent** - Manages MCP server operations and tool discovery
+4. **GitHub Agent** - Handles Git operations (status, add, commit, push, pull, branch)
 
 Your responsibilities:
 - Analyze incoming tasks and break them into subtasks
@@ -60,6 +63,7 @@ When delegating:
 - Use delegate_to_aws for cloud infrastructure operations
 - Use delegate_to_vault for credential and secret management
 - Use delegate_to_mcp for MCP server management and tool discovery
+- Use delegate_to_github for git operations (commit, push, pull, branch)
 - Use execute_workflow for multi-step operations requiring multiple agents"""
 
     @property
@@ -71,6 +75,7 @@ When delegating:
         aws_agent: "BaseAgent | None" = None,
         vault_agent: "BaseAgent | None" = None,
         mcp_agent: "BaseAgent | None" = None,
+        github_agent: "BaseAgent | None" = None,
     ) -> None:
         """Set or update the specialized agents."""
         if aws_agent:
@@ -79,6 +84,7 @@ When delegating:
             self._vault_agent = vault_agent
         if mcp_agent:
             self._mcp_agent = mcp_agent
+        self._github_agent = github_agent
 
     def _register_tools(self) -> None:
         """Register orchestrator-specific tools."""
@@ -151,6 +157,28 @@ When delegating:
 
         self.register_tool(
             AgentTool(
+                name="delegate_to_github",
+                description="Delegate a task to the GitHub Agent for git operations (status, add, commit, push, pull, branch)",
+                parameters={
+                    "type": "object",
+                    "properties": {
+                        "task": {
+                            "type": "string",
+                            "description": "The task to delegate to GitHub Agent",
+                        },
+                        "context": {
+                            "type": "object",
+                            "description": "Optional context data for the task",
+                        },
+                    },
+                    "required": ["task"],
+                },
+                handler=self._delegate_to_github,
+            )
+        )
+
+        self.register_tool(
+            AgentTool(
                 name="execute_parallel",
                 description="Execute multiple independent tasks in parallel. Use when tasks don't depend on each other for maximum speed.",
                 parameters={
@@ -164,7 +192,7 @@ When delegating:
                                 "properties": {
                                     "agent": {
                                         "type": "string",
-                                        "enum": ["aws", "vault", "mcp"],
+                                        "enum": ["aws", "vault", "mcp", "github"],
                                     },
                                     "task": {"type": "string"},
                                 },
@@ -197,7 +225,7 @@ When delegating:
                                 "properties": {
                                     "agent": {
                                         "type": "string",
-                                        "enum": ["aws", "vault", "mcp"],
+                                        "enum": ["aws", "vault", "mcp", "github"],
                                     },
                                     "task": {"type": "string"},
                                     "depends_on": {
@@ -270,6 +298,24 @@ When delegating:
             "error": result.error,
         }
 
+    async def _delegate_to_github(
+        self, task: str, context: dict[str, Any] | None = None
+    ) -> dict[str, Any]:
+        """Delegate task to GitHub Agent."""
+        if not self._github_agent:
+            return {"error": "GitHub Agent not configured"}
+
+        logger.info(f"Orchestrator: delegating to GitHub Agent: {task[:50]}...")
+        result = await self._github_agent.run(task, context)
+
+        return {
+            "agent": "github",
+            "success": result.success,
+            "output": result.output,
+            "data": result.data,
+            "error": result.error,
+        }
+
     async def _execute_parallel(
         self, tasks: list[dict[str, Any]]
     ) -> dict[str, Any]:
@@ -298,6 +344,8 @@ When delegating:
                 result = await self._delegate_to_vault(task)
             elif agent_name == "mcp":
                 result = await self._delegate_to_mcp(task)
+            elif agent_name == "github":
+                result = await self._delegate_to_github(task)
             else:
                 result = {"error": f"Unknown agent: {agent_name}"}
 
@@ -397,6 +445,8 @@ When delegating:
                 result = await self._delegate_to_vault(task, context)
             elif agent_name == "mcp":
                 result = await self._delegate_to_mcp(task, context)
+            elif agent_name == "github":
+                result = await self._delegate_to_github(task, context)
             else:
                 result = {"error": f"Unknown agent: {agent_name}"}
 
