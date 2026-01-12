@@ -259,6 +259,94 @@ Be careful with sensitive files - never commit .env or credentials.
             handler=self._git_init_remote,
         ))
 
+        self.register_tool(AgentTool(
+            name="git_checkout",
+            description="Switch to an existing branch.",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "branch": {
+                        "type": "string",
+                        "description": "Branch name to switch to.",
+                    },
+                },
+                "required": ["branch"],
+            },
+            handler=self._git_checkout,
+        ))
+
+        self.register_tool(AgentTool(
+            name="git_create_remote_branch",
+            description="Create a new branch and push it to remote repository (GitHub).",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "New branch name.",
+                    },
+                    "from_branch": {
+                        "type": "string",
+                        "description": "Base branch to create from (default: current branch).",
+                    },
+                    "remote": {
+                        "type": "string",
+                        "description": "Remote name (default: origin).",
+                        "default": "origin",
+                    },
+                },
+                "required": ["name"],
+            },
+            handler=self._git_create_remote_branch,
+        ))
+
+        self.register_tool(AgentTool(
+            name="git_delete_branch",
+            description="Delete a branch locally and/or from remote.",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "Branch name to delete.",
+                    },
+                    "remote": {
+                        "type": "boolean",
+                        "description": "Also delete from remote (default: False).",
+                        "default": False,
+                    },
+                    "force": {
+                        "type": "boolean",
+                        "description": "Force delete even if not merged (default: False).",
+                        "default": False,
+                    },
+                },
+                "required": ["name"],
+            },
+            handler=self._git_delete_branch,
+        ))
+
+        self.register_tool(AgentTool(
+            name="git_merge",
+            description="Merge a branch into the current branch.",
+            parameters={
+                "type": "object",
+                "properties": {
+                    "branch": {
+                        "type": "string",
+                        "description": "Branch name to merge into current branch.",
+                    },
+                    "no_ff": {
+                        "type": "boolean",
+                        "description": "Create a merge commit even if fast-forward is possible (default: False).",
+                        "default": False,
+                    },
+                },
+                "required": ["branch"],
+            },
+            handler=self._git_merge,
+        ))
+
     async def _git_status(self) -> dict[str, Any]:
         """Get repository status."""
         return self._run_git_command("status", "--porcelain=v1")
@@ -348,3 +436,105 @@ Be careful with sensitive files - never commit .env or credentials.
             "output": f"Repository initialized with remote: {repo_url}",
             "details": results,
         }
+
+    async def _git_checkout(self, branch: str) -> dict[str, Any]:
+        """Switch to an existing branch."""
+        return self._run_git_command("checkout", branch)
+
+    async def _git_create_remote_branch(
+        self,
+        name: str,
+        from_branch: str | None = None,
+        remote: str = "origin",
+    ) -> dict[str, Any]:
+        """Create a new branch and push it to remote."""
+        results = []
+
+        # If from_branch specified, checkout that branch first
+        if from_branch:
+            checkout_result = self._run_git_command("checkout", from_branch)
+            if not checkout_result["success"]:
+                return {
+                    "success": False,
+                    "error": f"Failed to checkout base branch '{from_branch}': {checkout_result.get('error')}",
+                }
+            results.append(f"Checked out base branch: {from_branch}")
+
+            # Pull latest changes from base branch
+            pull_result = self._run_git_command("pull", remote, from_branch)
+            if pull_result["success"]:
+                results.append(f"Pulled latest changes from {remote}/{from_branch}")
+
+        # Create new branch
+        branch_result = self._run_git_command("checkout", "-b", name)
+        if not branch_result["success"]:
+            return {
+                "success": False,
+                "error": f"Failed to create branch '{name}': {branch_result.get('error')}",
+            }
+        results.append(f"Created branch: {name}")
+
+        # Push to remote with upstream tracking
+        push_result = self._run_git_command("push", "-u", remote, name)
+        if not push_result["success"]:
+            return {
+                "success": False,
+                "error": f"Failed to push branch to remote: {push_result.get('error')}",
+                "details": results,
+            }
+        results.append(f"Pushed branch to {remote}/{name}")
+
+        return {
+            "success": True,
+            "output": f"Branch '{name}' created and pushed to {remote}",
+            "details": results,
+        }
+
+    async def _git_delete_branch(
+        self,
+        name: str,
+        remote: bool = False,
+        force: bool = False,
+    ) -> dict[str, Any]:
+        """Delete a branch locally and/or from remote."""
+        results = []
+
+        # Get current branch to ensure we're not deleting it
+        current = self._run_git_command("rev-parse", "--abbrev-ref", "HEAD")
+        if current["success"] and current["output"] == name:
+            return {
+                "success": False,
+                "error": f"Cannot delete the currently checked out branch '{name}'. Switch to another branch first.",
+            }
+
+        # Delete local branch
+        delete_flag = "-D" if force else "-d"
+        local_result = self._run_git_command("branch", delete_flag, name)
+        if local_result["success"]:
+            results.append(f"Deleted local branch: {name}")
+        else:
+            results.append(f"Failed to delete local branch: {local_result.get('error')}")
+
+        # Delete remote branch if requested
+        if remote:
+            remote_result = self._run_git_command("push", "origin", "--delete", name)
+            if remote_result["success"]:
+                results.append(f"Deleted remote branch: origin/{name}")
+            else:
+                results.append(f"Failed to delete remote branch: {remote_result.get('error')}")
+
+        return {
+            "success": True,
+            "output": f"Branch deletion completed for '{name}'",
+            "details": results,
+        }
+
+    async def _git_merge(
+        self,
+        branch: str,
+        no_ff: bool = False,
+    ) -> dict[str, Any]:
+        """Merge a branch into the current branch."""
+        if no_ff:
+            return self._run_git_command("merge", "--no-ff", branch)
+        return self._run_git_command("merge", branch)
