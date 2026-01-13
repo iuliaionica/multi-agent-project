@@ -1,0 +1,1 @@
+"""Car dealership web application."""

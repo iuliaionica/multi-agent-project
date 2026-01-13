@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block title %}Catalog - AutoElite{% endblock %}
+
+{% block content %}
+<section class="catalog-page">
+    <h1>Our Vehicles</h1>
+
+    <div class="catalog-container">
+        <aside class="filters">
+            <h2>Filters</h2>
+            <form method="get" action="/catalog">
+                <div class="filter-group">
+                    <label for="brand">Brand</label>
+                    <select name="brand" id="brand">
+                        <option value="">All Brands</option>
+                        {% for b in brands %}
+                        <option value="{{ b }}" {% if brand == b %}selected{% endif %}>{{ b }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="fuel_type">Fuel Type</label>
+                    <select name="fuel_type" id="fuel_type">
+                        <option value="">All Types</option>
+                        {% for ft in fuel_types %}
+                        <option value="{{ ft }}" {% if fuel_type == ft %}selected{% endif %}>{{ ft }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="year">Year</label>
+                    <select name="year" id="year">
+                        <option value="">All Years</option>
+                        {% for y in years %}
+                        <option value="{{ y }}" {% if year == y %}selected{% endif %}>{{ y }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="min_price">Min Price</label>
+                    <input type="number" name="min_price" id="min_price" value="{{ min_price or '' }}" placeholder="Min">
+                </div>
+
+                <div class="filter-group">
+                    <label for="max_price">Max Price</label>
+                    <input type="number" name="max_price" id="max_price" value="{{ max_price or '' }}" placeholder="Max">
+                </div>
+
+                <button type="submit" class="btn btn-primary">Apply Filters</button>
+                <a href="/catalog" class="btn btn-secondary">Clear</a>
+            </form>
+        </aside>
+
+        <div class="catalog-results">
+            <p class="results-count">{{ cars|length }} vehicles found</p>
+
+            <div class="car-grid">
+                {% for car in cars %}
+                <div class="car-card">
+                    <div class="car-image">
+                        <img src="{{ url_for('static', path='images/' + car.image) }}" alt="{{ car.title }}" onerror="this.src='https://via.placeholder.com/400x250?text={{ car.brand }}+{{ car.model }}'">
+                    </div>
+                    <div class="car-info">
+                        <h3>{{ car.title }}</h3>
+                        <div class="car-specs">
+                            <span>{{ car.fuel_type }}</span>
+                            <span>{{ car.transmission }}</span>
+                            <span>{{ car.mileage_formatted }}</span>
+                        </div>
+                        <div class="car-price">{{ car.price_formatted }}</div>
+                        <a href="/car/{{ car.id }}" class="btn btn-secondary">View Details</a>
+                    </div>
+                </div>
+                {% else %}
+                <p class="no-results">No vehicles match your criteria.</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,13 @@
+id,brand,model,year,price,mileage,fuel_type,transmission,engine_size,color,description,image
+1,BMW,X5,2023,65000,15000,Diesel,Automatic,3.0,Black,Luxury SUV with premium features and panoramic roof,bmw_x5.jpg
+2,Mercedes-Benz,C-Class,2022,48000,22000,Petrol,Automatic,2.0,Silver,Elegant sedan with AMG styling package,mercedes_c.jpg
+3,Audi,A4,2023,42000,8000,Diesel,Automatic,2.0,White,Business class sedan with virtual cockpit,audi_a4.jpg
+4,Volkswagen,Golf,2022,28000,18000,Petrol,Manual,1.5,Blue,Popular hatchback with modern infotainment,vw_golf.jpg
+5,Toyota,Camry,2023,35000,5000,Hybrid,Automatic,2.5,Gray,Reliable hybrid sedan with excellent fuel economy,toyota_camry.jpg
+6,Ford,Mustang,2021,55000,12000,Petrol,Manual,5.0,Red,Iconic muscle car with V8 engine,ford_mustang.jpg
+7,Honda,CR-V,2023,38000,10000,Petrol,Automatic,1.5,White,Family SUV with spacious interior,honda_crv.jpg
+8,Porsche,911,2022,125000,8000,Petrol,Automatic,3.0,Yellow,Sports car icon with twin-turbo engine,porsche_911.jpg
+9,Tesla,Model 3,2023,45000,5000,Electric,Automatic,0,Black,Premium electric sedan with autopilot,tesla_model3.jpg
+10,Volvo,XC60,2022,52000,20000,Diesel,Automatic,2.0,Gray,Safe and stylish Swedish SUV,volvo_xc60.jpg
+11,Skoda,Octavia,2023,32000,3000,Diesel,Automatic,2.0,Blue,Practical estate with large boot space,skoda_octavia.jpg
+12,Mazda,CX-5,2022,36000,15000,Petrol,Automatic,2.5,Red,Sporty crossover with premium interior,mazda_cx5.jpg

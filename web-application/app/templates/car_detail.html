@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}{{ car.title }} - AutoElite{% endblock %}
+
+{% block content %}
+<section class="car-detail">
+    <div class="breadcrumb">
+        <a href="/">Home</a> &gt; <a href="/catalog">Catalog</a> &gt; <span>{{ car.title }}</span>
+    </div>
+
+    <div class="car-detail-container">
+        <div class="car-detail-image">
+            <img src="{{ url_for('static', path='images/' + car.image) }}" alt="{{ car.title }}" onerror="this.src='https://via.placeholder.com/600x400?text={{ car.brand }}+{{ car.model }}'">
+        </div>
+
+        <div class="car-detail-info">
+            <h1>{{ car.title }}</h1>
+            <div class="car-detail-price">{{ car.price_formatted }}</div>
+
+            <div class="car-specifications">
+                <h2>Specifications</h2>
+                <table class="specs-table">
+                    <tr>
+                        <th>Brand</th>
+                        <td>{{ car.brand }}</td>
+                    </tr>
+                    <tr>
+                        <th>Model</th>
+                        <td>{{ car.model }}</td>
+                    </tr>
+                    <tr>
+                        <th>Year</th>
+                        <td>{{ car.year }}</td>
+                    </tr>
+                    <tr>
+                        <th>Mileage</th>
+                        <td>{{ car.mileage_formatted }}</td>
+                    </tr>
+                    <tr>
+                        <th>Fuel Type</th>
+                        <td>{{ car.fuel_type }}</td>
+                    </tr>
+                    <tr>
+                        <th>Transmission</th>
+                        <td>{{ car.transmission }}</td>
+                    </tr>
+                    {% if car.engine_size > 0 %}
+                    <tr>
+                        <th>Engine Size</th>
+                        <td>{{ car.engine_size }}L</td>
+                    </tr>
+                    {% endif %}
+                    <tr>
+                        <th>Color</th>
+                        <td>{{ car.color }}</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="car-description">
+                <h2>Description</h2>
+                <p>{{ car.description }}</p>
+            </div>
+
+            <div class="car-actions">
+                <a href="/contact?car_id={{ car.id }}" class="btn btn-primary">Inquire About This Car</a>
+                <a href="/catalog" class="btn btn-secondary">Back to Catalog</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

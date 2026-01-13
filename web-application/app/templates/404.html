@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}Page Not Found - AutoElite{% endblock %}
+
+{% block content %}
+<section class="error-page">
+    <div class="error-content">
+        <h1>404</h1>
+        <h2>Page Not Found</h2>
+        <p>Sorry, the page you are looking for doesn't exist or has been moved.</p>
+        <div class="error-actions">
+            <a href="/" class="btn btn-primary">Go Home</a>
+            <a href="/catalog" class="btn btn-secondary">Browse Catalog</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

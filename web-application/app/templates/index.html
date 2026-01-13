@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}AutoElite - Premium Cars{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-content">
+        <h1>Find Your Dream Car</h1>
+        <p>Premium selection of quality vehicles at competitive prices</p>
+        <a href="/catalog" class="btn btn-primary">Browse Catalog</a>
+    </div>
+</section>
+
+<section class="featured">
+    <h2>Featured Vehicles</h2>
+    <div class="car-grid">
+        {% for car in featured_cars %}
+        <div class="car-card">
+            <div class="car-image">
+                <img src="{{ url_for('static', path='images/' + car.image) }}" alt="{{ car.title }}" onerror="this.src='https://via.placeholder.com/400x250?text={{ car.brand }}+{{ car.model }}'">
+            </div>
+            <div class="car-info">
+                <h3>{{ car.title }}</h3>
+                <div class="car-specs">
+                    <span>{{ car.fuel_type }}</span>
+                    <span>{{ car.transmission }}</span>
+                    <span>{{ car.mileage_formatted }}</span>
+                </div>
+                <div class="car-price">{{ car.price_formatted }}</div>
+                <a href="/car/{{ car.id }}" class="btn btn-secondary">View Details</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="why-us">
+    <h2>Why Choose AutoElite?</h2>
+    <div class="features-grid">
+        <div class="feature">
+            <div class="feature-icon">&#9989;</div>
+            <h3>Quality Guaranteed</h3>
+            <p>All vehicles pass rigorous inspection</p>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">&#128176;</div>
+            <h3>Best Prices</h3>
+            <p>Competitive pricing with financing options</p>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">&#128736;</div>
+            <h3>After-Sale Service</h3>
+            <p>Full support after your purchase</p>
+        </div>
+    </div>
+</section>
+{% endblock %}
